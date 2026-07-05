@@ -14,7 +14,7 @@ Then open:
 http://127.0.0.1:8000
 ```
 
-By default, the app uses `C:\Users\josep\nq-simulator` for tick data. It scans `C:\Users\josep\nq-simulator\ticks\*.csv`, imports new or changed files into `C:\Users\josep\nq-simulator\ticks.sqlite3`, then serves replay data from that local database. Drop future exports into `C:\Users\josep\nq-simulator\ticks\` so Google Drive does not sync the heavy files. Set `NQ_SIMULATOR_DATA_DIR` to use a different data folder.
+By default, the app uses `%userfolder%\nq-simulator` for tick data. It scans `C:\Users\josep\nq-simulator\ticks\*.csv`, imports new or changed files into `C:\Users\josep\nq-simulator\ticks.sqlite3`, then serves replay data from that local database. Drop future exports into `C:\Users\josep\nq-simulator\ticks\` so Google Drive does not sync the heavy files. Set `NQ_SIMULATOR_DATA_DIR` to use a different data folder.
 
 ## Data assumptions
 
