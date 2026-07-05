@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NQ Tick Replay Simulator</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace">
+        <header class="topbar">
+          <div>
+            <h1>NQ Replay</h1>
+            <p id="coverageText">Loading tick data...</p>
+          </div>
+          <div class="status-grid">
+            <div>
+              <span>Replay time</span>
+              <strong id="replayTime">--</strong>
+            </div>
+            <div>
+              <span>Last price</span>
+              <strong id="lastPrice">--</strong>
+            </div>
+            <div>
+              <span>Candle</span>
+              <strong id="candleInfo">--</strong>
+            </div>
+          </div>
+        </header>
+
+        <div class="control-strip">
+          <label>
+            Start
+            <input id="startInput" type="datetime-local" step="1">
+          </label>
+          <label>
+            Speed
+            <select id="speedInput">
+              <option value="0.75">Slow - 0.75x</option>
+              <option value="1" selected>Normal - 1x</option>
+              <option value="5">Fast - 5x</option>
+              <option value="10">Fastest - 10x</option>
+            </select>
+          </label>
+          <button id="startBtn">Start</button>
+          <button id="randomAsiaBtn">Random Asia</button>
+          <button id="randomLondonBtn">Random London</button>
+          <button id="pauseBtn" disabled>Pause</button>
+          <button id="skipBtn" disabled>Skip Candle</button>
+          <button id="tickChartBtn" type="button" aria-pressed="false">100 Tick Chart</button>
+          <button id="zoomOutBtn">Zoom Out</button>
+          <button id="zoomInBtn">Zoom In</button>
+          <button id="resetBtn" disabled>Reset</button>
+        </div>
+
+        <div class="chart-wrap" id="chartWrap">
+          <div class="chart-grid" id="chartGrid">
+            <div class="chart-panel">
+              <div class="chart-title">5 Min</div>
+              <canvas id="chart" width="1200" height="640"></canvas>
+            </div>
+            <div class="chart-panel tick-chart-panel" id="tickChartPanel" hidden>
+              <div class="chart-title">100 Tick</div>
+              <canvas id="tickChart" width="1200" height="640"></canvas>
+            </div>
+          </div>
+          <p class="chart-hint">Right-click above price: take profit | below price: stop loss | Mouse wheel: zoom</p>
+        </div>
+      </section>
+
+      <aside class="trade-panel">
+        <section>
+          <h2>Paper Trade</h2>
+          <label>
+            Qty
+            <input id="qtyInput" type="number" min="1" step="1" value="1">
+          </label>
+          <div class="trade-buttons">
+            <button id="buyBtn" class="buy" disabled>Market Buy</button>
+            <button id="sellBtn" class="sell" disabled>Market Sell</button>
+            <button id="flattenBtn" class="flatten" disabled>Flatten</button>
+          </div>
+          <p id="tradeStatus" class="muted">Start replay to enable trading.</p>
+        </section>
+
+        <section class="metrics">
+          <h2>Position</h2>
+          <dl>
+            <div><dt>Net</dt><dd id="positionValue">0</dd></div>
+            <div><dt>Average</dt><dd id="avgValue">--</dd></div>
+            <div><dt>Realized</dt><dd id="realizedValue">$0.00</dd></div>
+            <div><dt>Unrealized</dt><dd id="unrealizedValue">$0.00</dd></div>
+          </dl>
+        </section>
+
+        <section>
+          <h2>Executions</h2>
+          <ol id="executions" class="executions"></ol>
+        </section>
+      </aside>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>
