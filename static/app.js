@@ -1,4 +1,4 @@
-﻿const state = {
+const state = {
   coverage: null,
   cursor: 0,
   nextCursor: 0,
@@ -17,15 +17,16 @@
   realizedPnl: 0,
   stopLossPrice: null,
   takeProfitPrice: null,
+  limitOrders: [],
+  nextLimitOrderId: 1,
   visibleCandles: 220,
   executions: [],
   timer: null,
-  hover: null,
-  tickHover: null,
-  chartLayout: null,
-  tickChartLayout: null,
+  chartData: [],
+  tickChartData: [],
   showTickChart: false,
   replayVersion: 0,
+  instrument: "NQ",
 };
 
 const els = {
@@ -48,21 +49,87 @@ const els = {
   chart: document.querySelector("#chart"),
   tickChartPanel: document.querySelector("#tickChartPanel"),
   tickChart: document.querySelector("#tickChart"),
+  mnqToggle: document.querySelector("#mnqToggle"),
   qtyInput: document.querySelector("#qtyInput"),
+  limitPriceInput: document.querySelector("#limitPriceInput"),
   buyBtn: document.querySelector("#buyBtn"),
   sellBtn: document.querySelector("#sellBtn"),
+  buyLimitBtn: document.querySelector("#buyLimitBtn"),
+  sellLimitBtn: document.querySelector("#sellLimitBtn"),
   flattenBtn: document.querySelector("#flattenBtn"),
   tradeStatus: document.querySelector("#tradeStatus"),
   positionValue: document.querySelector("#positionValue"),
   avgValue: document.querySelector("#avgValue"),
   realizedValue: document.querySelector("#realizedValue"),
   unrealizedValue: document.querySelector("#unrealizedValue"),
+  pendingOrders: document.querySelector("#pendingOrders"),
   executions: document.querySelector("#executions"),
 };
 
-const ctx = els.chart.getContext("2d");
-const tickCtx = els.tickChart.getContext("2d");
-const NQ_DOLLARS_PER_POINT = 20;
+const DOLLARS_PER_POINT = {
+  NQ: 20,
+  MNQ: 2,
+};
+
+const chartState = {
+  main: null,
+  tick: null,
+};
+
+const SERIES_OPTIONS = {
+  upColor: "#22b573",
+  downColor: "#e05252",
+  borderUpColor: "#22b573",
+  borderDownColor: "#e05252",
+  wickUpColor: "#22b573",
+  wickDownColor: "#e05252",
+};
+
+const CHART_OPTIONS = {
+  autoSize: true,
+  layout: {
+    background: { type: "solid", color: "#0b0e11" },
+    textColor: "#8d9aa6",
+  },
+  grid: {
+    vertLines: { color: "#151a20" },
+    horzLines: { color: "#1e252c" },
+  },
+  rightPriceScale: {
+    borderColor: "#2f3942",
+    autoScale: true,
+    scaleMargins: { top: 0.1, bottom: 0.12 },
+  },
+  timeScale: {
+    borderColor: "#2f3942",
+    timeVisible: true,
+    secondsVisible: false,
+    rightOffset: 8,
+    barSpacing: 6,
+  },
+  crosshair: {
+    mode: 0,
+  },
+  handleScroll: {
+    mouseWheel: true,
+    pressedMouseMove: true,
+    horzTouchDrag: true,
+    vertTouchDrag: true,
+  },
+  handleScale: {
+    axisPressedMouseMove: true,
+    mouseWheel: true,
+    pinch: true,
+  },
+};
+
+function dollarsPerPoint() {
+  return DOLLARS_PER_POINT[state.instrument] || DOLLARS_PER_POINT.NQ;
+}
+
+function dollarsPerTick() {
+  return dollarsPerPoint() * 0.25;
+}
 
 function money(value) {
   const sign = value < 0 ? "-" : "";
@@ -81,6 +148,27 @@ function price(value) {
 function signedPoints(value) {
   const sign = value > 0 ? "+" : value < 0 ? "-" : "";
   return `${sign}${Math.abs(value).toFixed(2)} pts`;
+}
+
+function roundToTick(value) {
+  return Math.round(value / 0.25) * 0.25;
+}
+
+function numberFromInput(input) {
+  if (input.value.trim() === "") return null;
+  const value = Number(input.value);
+  return Number.isFinite(value) ? value : null;
+}
+
+function niceAxisStep(range) {
+  const targetLines = 6;
+  const rawStep = Math.max(0.25, range / targetLines);
+  const magnitude = 10 ** Math.floor(Math.log10(rawStep));
+  for (const multiplier of [1, 2, 5, 10]) {
+    const step = multiplier * magnitude;
+    if (step >= rawStep) return Math.max(0.25, step);
+  }
+  return Math.max(0.25, 10 * magnitude);
 }
 
 function toDatetimeLocal(value) {
@@ -144,7 +232,7 @@ async function startReplay(startOverride = null) {
   state.cursor = seek.cursor;
   state.nextCursor = seek.cursor;
   state.candles = seek.warmup_candles || [];
-  state.tickCandles = [];
+  state.tickCandles = seek.warmup_tick_bars || [];
   state.running = true;
   state.paused = false;
   state.done = false;
@@ -170,10 +258,12 @@ function resetReplay(resetInput = true) {
   state.avgPrice = 0;
   state.realizedPnl = 0;
   state.executions = [];
+  state.limitOrders = [];
+  state.nextLimitOrderId = 1;
   state.stopLossPrice = null;
   state.takeProfitPrice = null;
-  state.hover = null;
-  state.tickHover = null;
+  state.chartData = [];
+  state.tickChartData = [];
   state.cursor = 0;
   state.nextCursor = 0;
   if (state.timer) {
@@ -187,6 +277,7 @@ function resetReplay(resetInput = true) {
     els.startInput.value = toDatetimeLocal(state.coverage.start);
   }
   setControls();
+  renderPendingOrders();
   drawChart();
 }
 
@@ -199,10 +290,13 @@ function setControls() {
   els.resetBtn.disabled = (!state.running && state.candles.length === 0) || state.skipping;
   els.buyBtn.disabled = !state.running || state.paused || !state.lastTick || state.skipping;
   els.sellBtn.disabled = !state.running || state.paused || !state.lastTick || state.skipping;
+  els.buyLimitBtn.disabled = !state.running || state.paused || !state.lastTick || state.skipping;
+  els.sellLimitBtn.disabled = !state.running || state.paused || !state.lastTick || state.skipping;
   els.flattenBtn.disabled = !state.running || state.paused || !state.lastTick || state.skipping || state.position === 0;
   els.tradeStatus.textContent = state.lastTick ? "Market orders fill at last replay price." : "Start replay to enable trading.";
   els.tickChartBtn.classList.toggle("active", state.showTickChart);
   els.tickChartBtn.setAttribute("aria-pressed", state.showTickChart ? "true" : "false");
+  els.mnqToggle.checked = state.instrument === "MNQ";
 }
 
 async function fillQueue(replayVersion = state.replayVersion) {
@@ -263,6 +357,7 @@ async function scheduleReplay(replayVersion = state.replayVersion) {
 
   applyTick(tick);
   await checkExitOrders();
+  await checkLimitOrders();
   updateReadouts();
   drawChart();
   updatePositionPanel();
@@ -348,7 +443,8 @@ async function skipCandle() {
     applyTick(tick);
     processed += 1;
     const exited = await checkExitOrders();
-    if (exited) {
+    const limitFilled = await checkLimitOrders();
+    if (exited || limitFilled) {
       break;
     }
     if (bucket5m(tick.timestamp) !== currentBucket) {
@@ -377,6 +473,9 @@ function updateReadouts() {
   els.replayTime.textContent = tick ? tick.timestamp : "--";
   els.lastPrice.textContent = tick ? price(tick.price) : "--";
   els.candleInfo.textContent = candle ? `${candle.timestamp.slice(11, 16)} | ${candle.ticks} ticks | ${candle.volume} vol` : "--";
+  if (tick && !els.limitPriceInput.value && document.activeElement !== els.limitPriceInput) {
+    els.limitPriceInput.value = price(tick.price);
+  }
 }
 
 function setChartZoom(nextVisibleCandles) {
@@ -389,328 +488,265 @@ function zoomChart(direction) {
   setChartZoom(state.visibleCandles * factor);
 }
 
-function handleChartWheel(event) {
-  event.preventDefault();
-  zoomChart(event.deltaY < 0 ? "in" : "out");
-}
-
-function resizeChart() {
-  const dpr = window.devicePixelRatio || 1;
-  resizeCanvas(els.chart, ctx, dpr);
-  if (state.showTickChart) {
-    resizeCanvas(els.tickChart, tickCtx, dpr);
-  }
-  drawChart();
-}
-
-function resizeCanvas(canvas, context, dpr) {
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = Math.max(600, Math.floor(rect.width * dpr));
-  canvas.height = Math.max(360, Math.floor(rect.height * dpr));
-  context.setTransform(dpr, 0, 0, dpr, 0, 0);
-}
-
-function chartLayoutFor(kind) {
-  return kind === "tick" ? state.tickChartLayout : state.chartLayout;
-}
-
-function setChartLayout(kind, layout) {
-  if (kind === "tick") {
-    state.tickChartLayout = layout;
-  } else {
-    state.chartLayout = layout;
+function ensureLightweightCharts() {
+  if (!window.LightweightCharts) {
+    throw new Error("Lightweight Charts did not load. Check your internet connection or CDN access.");
   }
 }
 
-function chartHoverFor(kind) {
-  return kind === "tick" ? state.tickHover : state.hover;
+function addCandlestickSeries(chart) {
+  if (typeof chart.addCandlestickSeries === "function") {
+    return chart.addCandlestickSeries(SERIES_OPTIONS);
+  }
+  return chart.addSeries(LightweightCharts.CandlestickSeries, SERIES_OPTIONS);
 }
 
-function drawChart() {
-  drawCandlestickChart("main", els.chart, ctx, state.candles, "Select a start time and press Start.");
-  if (state.showTickChart) {
-    drawCandlestickChart("tick", els.tickChart, tickCtx, state.tickCandles, "100 tick bars will appear after Start.");
+function makeChart(container) {
+  ensureLightweightCharts();
+  const chart = LightweightCharts.createChart(container, CHART_OPTIONS);
+  const series = addCandlestickSeries(chart);
+  const lines = [];
+  chart.subscribeCrosshairMove((param) => updateCrosshairReadout(param, series));
+  return { chart, series, lines };
+}
+
+function initCharts() {
+  if (!chartState.main) {
+    chartState.main = makeChart(els.chart);
+  }
+  if (!chartState.tick) {
+    chartState.tick = makeChart(els.tickChart);
   }
 }
 
-function drawCandlestickChart(kind, canvas, context, sourceCandles, emptyText) {
-  const rect = canvas.getBoundingClientRect();
-  const width = rect.width;
-  const height = rect.height;
-  context.clearRect(0, 0, width, height);
-  context.fillStyle = "#0b0e11";
-  context.fillRect(0, 0, width, height);
+function timestampSeconds(timestamp) {
+  const parts = parseTimestampParts(timestamp);
+  return Math.floor(Date.UTC(
+    parts.year,
+    parts.month - 1,
+    parts.day,
+    parts.hour,
+    parts.minute,
+    parts.second,
+    parts.millisecond,
+  ) / 1000);
+}
 
-  const candles = sourceCandles.slice(-state.visibleCandles);
-  setChartLayout(kind, null);
-  if (candles.length === 0) {
-    context.fillStyle = "#8d9aa6";
-    context.font = "14px Segoe UI";
-    context.fillText(emptyText, 24, 42);
+function candlesToSeries(candles, options = {}) {
+  const { ensureUniqueTimes = false } = options;
+  const seen = new Map();
+  const deduped = [];
+  for (const candle of candles) {
+    if (ensureUniqueTimes) {
+      // Lightweight Charts only supports whole-second timestamps. A busy
+      // 100-tick chart can form several bars in the same second, so preserve
+      // every bar here and assign unique display times below.
+      deduped.push({ ...candle });
+      continue;
+    }
+    const key = candle.timestamp;
+    if (seen.has(key)) {
+      // merge into existing candle — last write wins for close/high/low, accumulate volume/ticks
+      const existing = seen.get(key);
+      existing.high = Math.max(existing.high, candle.high);
+      existing.low = Math.min(existing.low, candle.low);
+      existing.close = candle.close;
+      existing.volume = (existing.volume || 0) + (candle.volume || 0);
+      existing.ticks = (existing.ticks || 0) + (candle.ticks || 0);
+    } else {
+      const entry = { ...candle };
+      seen.set(key, entry);
+      deduped.push(entry);
+    }
+  }
+  let previousTime = null;
+  return deduped.map((candle) => {
+    let time = timestampSeconds(candle.timestamp);
+    if (ensureUniqueTimes && previousTime !== null && time <= previousTime) {
+      time = previousTime + 1;
+    }
+    previousTime = time;
+    return {
+      time,
+      open: candle.open,
+      high: candle.high,
+      low: candle.low,
+      close: candle.close,
+    };
+  });
+}
+
+function visibleRangeFor(data) {
+  if (data.length === 0) return null;
+  const fromIndex = Math.max(0, data.length - state.visibleCandles);
+  return {
+    from: data[fromIndex].time,
+    to: data[data.length - 1].time,
+  };
+}
+
+function applyVisibleRange(slot, data) {
+  const range = visibleRangeFor(data);
+  if (!range) return;
+  window.requestAnimationFrame(() => {
+    slot.chart.timeScale().setVisibleRange(range);
+  });
+}
+
+function clearPriceLines(slot) {
+  while (slot.lines.length > 0) {
+    slot.series.removePriceLine(slot.lines.pop());
+  }
+}
+
+function lineStyle(style) {
+  return LightweightCharts.LineStyle?.[style] ?? LightweightCharts.LineStyle.Solid;
+}
+
+function addPriceLine(slot, options) {
+  slot.lines.push(slot.series.createPriceLine({
+    axisLabelVisible: true,
+    lineWidth: 1,
+    lineStyle: lineStyle("Solid"),
+    ...options,
+  }));
+}
+
+function exitLineTitle(prefix, orderPrice) {
+  const points = state.position === 0 ? 0 : (orderPrice - state.avgPrice) * Math.sign(state.position);
+  const potentialPnl = state.position === 0 ? 0 : (orderPrice - state.avgPrice) * state.position * dollarsPerPoint();
+  return `${prefix} ${price(orderPrice)} ${signedPoints(points)} ${signedMoney(potentialPnl)}`;
+}
+
+function updatePriceLines(slot) {
+  clearPriceLines(slot);
+  if (!state.lastTick) return;
+
+  addPriceLine(slot, {
+    price: state.lastTick.price,
+    color: "#d8a441",
+    title: `Last ${price(state.lastTick.price)}`,
+  });
+
+  if (state.position !== 0) {
+    const unrealized = currentUnrealized();
+    addPriceLine(slot, {
+      price: state.avgPrice,
+      color: unrealized >= 0 ? "#22b573" : "#e05252",
+      lineStyle: lineStyle("Dashed"),
+      title: `Entry ${price(state.avgPrice)} ${signedMoney(unrealized)}`,
+    });
+  }
+
+  if (state.stopLossPrice !== null) {
+    addPriceLine(slot, {
+      price: state.stopLossPrice,
+      color: "#ff4d4d",
+      lineStyle: lineStyle("LargeDashed"),
+      title: exitLineTitle("SL", state.stopLossPrice),
+    });
+  }
+
+  if (state.takeProfitPrice !== null) {
+    addPriceLine(slot, {
+      price: state.takeProfitPrice,
+      color: "#22b573",
+      lineStyle: lineStyle("LargeDashed"),
+      title: exitLineTitle("TP", state.takeProfitPrice),
+    });
+  }
+
+  for (const order of state.limitOrders) {
+    addPriceLine(slot, {
+      price: order.price,
+      color: order.side === "BUY" ? "#58a6ff" : "#d8a441",
+      lineStyle: lineStyle("Dashed"),
+      title: `LMT ${order.side} ${order.quantity} @ ${price(order.price)}`,
+    });
+  }
+}
+
+function updateSeriesData(slot, data, options = {}) {
+  const { fitRange = false, resetSeries = false } = options;
+  if (data.length === 0) {
+    if (slot.dataLength !== 0 || resetSeries) {
+      slot.series.setData([]);
+      slot.dataLength = 0;
+      slot.lastTime = null;
+    }
     return;
   }
 
-  const pad = { left: 58, right: 18, top: 18, bottom: 34 };
-  const chartW = width - pad.left - pad.right;
-  const chartH = height - pad.top - pad.bottom;
-  const highs = candles.map((c) => c.high);
-  const lows = candles.map((c) => c.low);
-  let visibleMax = Math.max(...highs);
-  let visibleMin = Math.min(...lows);
-  if (state.position !== 0) {
-    visibleMax = Math.max(visibleMax, state.avgPrice);
-    visibleMin = Math.min(visibleMin, state.avgPrice);
-  }
-  if (state.stopLossPrice !== null) {
-    visibleMax = Math.max(visibleMax, state.stopLossPrice);
-    visibleMin = Math.min(visibleMin, state.stopLossPrice);
-  }
-  if (state.takeProfitPrice !== null) {
-    visibleMax = Math.max(visibleMax, state.takeProfitPrice);
-    visibleMin = Math.min(visibleMin, state.takeProfitPrice);
-  }
-  if (visibleMax === visibleMin) {
-    visibleMax += 25;
-    visibleMin -= 25;
-  }
-  const axisStep = 50;
-  let max = Math.ceil(visibleMax / axisStep) * axisStep;
-  let min = Math.floor(visibleMin / axisStep) * axisStep;
-  if (max === min) {
-    max += axisStep;
-    min -= axisStep;
-  }
-  const y = (v) => pad.top + ((max - v) / (max - min)) * chartH;
-  const step = chartW / Math.max(candles.length, state.visibleCandles);
-  const bodyW = Math.max(2, Math.min(7, step * 0.5));
-  setChartLayout(kind, { candles, pad, chartW, chartH, width, height, step, bodyW, y, min, max });
+  const lastBar = data[data.length - 1];
 
-  context.strokeStyle = "#1e252c";
-  context.lineWidth = 1;
-  for (let label = min; label <= max; label += axisStep) {
-    const gy = y(label);
-    context.beginPath();
-    context.moveTo(pad.left, gy);
-    context.lineTo(width - pad.right, gy);
-    context.stroke();
-    context.fillStyle = "#8d9aa6";
-    context.font = "12px Segoe UI";
-    context.fillText(label.toFixed(0), 8, gy + 4);
-  }
+  // During a skip, always use setData to avoid Lightweight Charts internal state
+  // corruption from incremental updates applied to a partially-built series.
+  const forceSet = state.skipping || resetSeries;
 
-  candles.forEach((c, i) => {
-    const x = pad.left + i * step + step / 2;
-    const up = c.close >= c.open;
-    const color = up ? "#22b573" : "#e05252";
-    context.strokeStyle = color;
-    context.fillStyle = color;
-    context.beginPath();
-    context.moveTo(x, y(c.high));
-    context.lineTo(x, y(c.low));
-    context.stroke();
-    const top = y(Math.max(c.open, c.close));
-    const bottom = y(Math.min(c.open, c.close));
-    context.fillRect(x - bodyW / 2, top, bodyW, Math.max(1, bottom - top));
-  });
+  const canIncrement = !forceSet
+    && slot.dataLength > 0
+    && data.length === slot.dataLength
+    && lastBar.time === slot.lastTime;
 
-  const last = candles[candles.length - 1];
-  context.strokeStyle = "#d8a441";
-  context.beginPath();
-  context.moveTo(pad.left, y(last.close));
-  context.lineTo(width - pad.right, y(last.close));
-  context.stroke();
-
-  drawPositionOverlay(kind, context);
-  drawExitOrderOverlay(kind, context, "SL", state.stopLossPrice, "#ff4d4d");
-  drawExitOrderOverlay(kind, context, "TP", state.takeProfitPrice, "#22b573");
-  drawHover(kind, context);
-}
-
-function drawPositionOverlay(kind, context) {
-  const layout = chartLayoutFor(kind);
-  if (!layout || state.position === 0 || !state.lastTick) return;
-  const { pad, width, height, y } = layout;
-  const entryY = y(state.avgPrice);
-  if (entryY < pad.top || entryY > height - pad.bottom) return;
-
-  const unrealized = currentUnrealized();
-  const isProfit = unrealized >= 0;
-  const color = isProfit ? "#22b573" : "#e05252";
-  const label = money(unrealized);
-
-  context.save();
-  context.strokeStyle = color;
-  context.lineWidth = 1;
-  context.setLineDash([2, 3]);
-  context.beginPath();
-  context.moveTo(pad.left, entryY);
-  context.lineTo(width - pad.right, entryY);
-  context.stroke();
-  context.setLineDash([]);
-
-  context.font = "700 12px Segoe UI";
-  const pnlW = Math.max(58, context.measureText(label).width + 18);
-  const pnlH = 22;
-  const priceLabel = price(state.avgPrice);
-  const priceW = Math.max(72, context.measureText(priceLabel).width + 16);
-  const x = width - pad.right - pnlW - priceW - 6;
-  const yBox = Math.max(pad.top + 2, Math.min(height - pad.bottom - pnlH - 2, entryY - pnlH / 2));
-
-  context.fillStyle = color;
-  context.fillRect(x, yBox, pnlW, pnlH);
-  context.fillStyle = isProfit ? "#07130d" : "#ffffff";
-  context.fillText(label, x + 9, yBox + 15);
-
-  context.fillStyle = "rgba(17, 20, 23, 0.96)";
-  context.strokeStyle = color;
-  context.strokeRect(x + pnlW + 6, yBox, priceW, pnlH);
-  context.fillStyle = "#e8edf2";
-  context.fillText(priceLabel, x + pnlW + 14, yBox + 15);
-  context.restore();
-}
-
-function drawExitOrderOverlay(kind, context, labelPrefix, orderPrice, color) {
-  const layout = chartLayoutFor(kind);
-  if (!layout || orderPrice === null) return;
-  const { pad, width, height, y } = layout;
-  const orderY = y(orderPrice);
-  if (orderY < pad.top || orderY > height - pad.bottom) return;
-
-  context.save();
-  context.strokeStyle = color;
-  context.lineWidth = 1.5;
-  context.setLineDash([7, 5]);
-  context.beginPath();
-  context.moveTo(pad.left, orderY);
-  context.lineTo(width - pad.right, orderY);
-  context.stroke();
-  context.setLineDash([]);
-
-  const points = state.position === 0 ? 0 : (orderPrice - state.avgPrice) * Math.sign(state.position);
-  const potentialPnl = (orderPrice - state.avgPrice) * state.position * NQ_DOLLARS_PER_POINT;
-  const label = `${labelPrefix} ${price(orderPrice)} | ${signedPoints(points)} | ${signedMoney(potentialPnl)}`;
-  context.font = "700 12px Segoe UI";
-  const boxW = Math.max(76, context.measureText(label).width + 16);
-  const boxH = 22;
-  const x = Math.max(pad.left + 4, width - pad.right - boxW);
-  const offset = labelPrefix === "TP" && state.stopLossPrice !== null ? -26 : 0;
-  const yBox = Math.max(pad.top + 2, Math.min(height - pad.bottom - boxH - 2, orderY - boxH / 2 + offset));
-  context.fillStyle = color;
-  context.fillRect(x, yBox, boxW, boxH);
-  context.fillStyle = labelPrefix === "TP" ? "#07130d" : "#ffffff";
-  context.fillText(label, x + 8, yBox + 15);
-  context.restore();
-}
-
-function priceAtChartY(yPos, kind = "main") {
-  const layout = chartLayoutFor(kind);
-  if (!layout) return null;
-  const { pad, chartH } = layout;
-  if (yPos < pad.top || yPos > pad.top + chartH) return null;
-  const max = layout.max;
-  const min = layout.min;
-  const rawPrice = max - ((yPos - pad.top) / chartH) * (max - min);
-  return Math.round(rawPrice / 0.25) * 0.25;
-}
-
-function candleAtPoint(x, yPos, kind = "main") {
-  const layout = chartLayoutFor(kind);
-  if (!layout) return null;
-  const { candles, pad, chartW, chartH, step } = layout;
-  if (x < pad.left || x > pad.left + chartW || yPos < pad.top || yPos > pad.top + chartH) return null;
-  const index = Math.floor((x - pad.left) / step);
-  if (index < 0 || index >= candles.length) return null;
-  const candle = candles[index];
-  const candleX = pad.left + index * step + step / 2;
-  return { candle, candleX };
-}
-
-function drawHover(kind, context) {
-  const hover = chartHoverFor(kind);
-  const layout = chartLayoutFor(kind);
-  if (!hover || !layout) return;
-  const hit = candleAtPoint(hover.x, hover.y, kind);
-  if (!hit) return;
-  const { candle, candleX } = hit;
-  const { pad, width, height, y } = layout;
-  const hoverY = hover.y;
-
-  context.save();
-  context.strokeStyle = "rgba(216, 164, 65, 0.65)";
-  context.lineWidth = 1;
-  context.setLineDash([4, 4]);
-  context.beginPath();
-  context.moveTo(candleX, pad.top);
-  context.lineTo(candleX, height - pad.bottom);
-  context.moveTo(pad.left, hoverY);
-  context.lineTo(width - pad.right, hoverY);
-  context.stroke();
-  context.setLineDash([]);
-
-  const rows = [
-    candle.timestamp.slice(0, 19),
-    `O ${price(candle.open)}  H ${price(candle.high)}`,
-    `L ${price(candle.low)}  C ${price(candle.close)}`,
-    `Vol ${candle.volume.toLocaleString()}  Ticks ${candle.ticks.toLocaleString()}`,
-  ];
-  context.font = "12px Segoe UI";
-  const tooltipW = Math.max(...rows.map((row) => context.measureText(row).width)) + 18;
-  const tooltipH = rows.length * 18 + 12;
-  let tx = candleX + 14;
-  if (tx + tooltipW > width - 10) tx = candleX - tooltipW - 14;
-  let ty = y(candle.high) - tooltipH - 10;
-  if (ty < 10) ty = y(candle.low) + 10;
-  if (ty + tooltipH > height - 10) ty = height - tooltipH - 10;
-
-  context.fillStyle = "rgba(17, 20, 23, 0.96)";
-  context.strokeStyle = "rgba(216, 164, 65, 0.7)";
-  context.lineWidth = 1;
-  context.beginPath();
-  context.roundRect(tx, ty, tooltipW, tooltipH, 6);
-  context.fill();
-  context.stroke();
-
-  rows.forEach((row, i) => {
-    context.fillStyle = i === 0 ? "#d8a441" : "#e8edf2";
-    context.fillText(row, tx + 9, ty + 20 + i * 18);
-  });
-  context.restore();
-}
-
-function handleChartHover(event, kind = "main", canvas = els.chart) {
-  const rect = canvas.getBoundingClientRect();
-  const hover = { x: event.clientX - rect.left, y: event.clientY - rect.top };
-  if (kind === "tick") {
-    state.tickHover = hover;
+  if (canIncrement) {
+    // Updating the currently-forming last bar in place (same candle, new tick).
+    slot.series.update(lastBar);
+  } else if (!forceSet && slot.dataLength > 0 && data.length === slot.dataLength + 1 && lastBar.time > slot.lastTime) {
+    // A new candle just opened — append it.
+    slot.series.update(lastBar);
   } else {
-    state.hover = hover;
+    slot.series.setData(data);
+  }
+
+  slot.dataLength = data.length;
+  slot.lastTime = lastBar.time;
+  if (fitRange) {
+    applyVisibleRange(slot, data);
+  }
+}
+
+function drawChart(options = {}) {
+  initCharts();
+  state.chartData = candlesToSeries(state.candles);
+  updateSeriesData(chartState.main, state.chartData, options);
+  updatePriceLines(chartState.main);
+
+  if (state.showTickChart) {
+    state.tickChartData = candlesToSeries(state.tickCandles, { ensureUniqueTimes: true });
+    updateSeriesData(chartState.tick, state.tickChartData, options);
+    updatePriceLines(chartState.tick);
+  }
+}
+
+function resizeChart() {
+  initCharts();
+  chartState.main.chart.resize(els.chart.clientWidth, els.chart.clientHeight);
+  if (state.showTickChart) {
+    chartState.tick.chart.resize(els.tickChart.clientWidth, els.tickChart.clientHeight);
   }
   drawChart();
 }
 
-function clearChartHover(kind = "main") {
-  if (kind === "tick") {
-    state.tickHover = null;
-  } else {
-    state.hover = null;
-  }
-  drawChart();
+function updateCrosshairReadout(param, series) {
+  if (!param?.time || !param.seriesData) return;
+  const bar = param.seriesData.get(series);
+  if (!bar) return;
+  els.candleInfo.textContent = `O ${price(bar.open)} | H ${price(bar.high)} | L ${price(bar.low)} | C ${price(bar.close)}`;
 }
 
-function handleChartContextMenu(event, kind = "main", canvas = els.chart) {
+function handleChartContextMenu(event, kind = "main") {
   event.preventDefault();
-  const rect = canvas.getBoundingClientRect();
-  const y = event.clientY - rect.top;
   if (state.position === 0) {
     els.tradeStatus.textContent = "Open a position before setting exit orders.";
     return;
   }
-  const orderPrice = priceAtChartY(y, kind);
-  if (orderPrice === null) return;
-  if (orderPrice === state.lastTick.price) {
-    els.tradeStatus.textContent = "Right-click above or below the current price to set TP or SL.";
-    return;
-  }
+
+  const slot = kind === "tick" ? chartState.tick : chartState.main;
+  if (!slot || !state.lastTick) return;
+  const rect = event.currentTarget.getBoundingClientRect();
+  const rawPrice = slot.series.coordinateToPrice(event.clientY - rect.top);
+  if (rawPrice === null) return;
+  const orderPrice = roundToTick(rawPrice);
 
   const isTakeProfit = state.position > 0
     ? orderPrice > state.lastTick.price
@@ -718,14 +754,14 @@ function handleChartContextMenu(event, kind = "main", canvas = els.chart) {
 
   if (isTakeProfit) {
     state.takeProfitPrice = orderPrice;
-    drawChart();
     els.tradeStatus.textContent = `Take profit set at ${price(orderPrice)}.`;
   } else {
     state.stopLossPrice = orderPrice;
-    drawChart();
     els.tradeStatus.textContent = `Stop loss set at ${price(orderPrice)}.`;
   }
+  drawChart();
 }
+
 function executeLocal(side, quantity, fillPrice) {
   const signed = side === "BUY" ? quantity : -quantity;
   const before = state.position;
@@ -739,7 +775,7 @@ function executeLocal(side, quantity, fillPrice) {
   } else {
     const closing = Math.min(Math.abs(before), quantity);
     const direction = before > 0 ? 1 : -1;
-    realizedDelta = (fillPrice - state.avgPrice) * closing * NQ_DOLLARS_PER_POINT * direction;
+    realizedDelta = (fillPrice - state.avgPrice) * closing * dollarsPerPoint() * direction;
     state.realizedPnl += realizedDelta;
     const next = before + signed;
     state.position = next;
@@ -764,7 +800,34 @@ function executeLocal(side, quantity, fillPrice) {
 
 function currentUnrealized() {
   if (!state.lastTick || state.position === 0) return 0;
-  return (state.lastTick.price - state.avgPrice) * state.position * NQ_DOLLARS_PER_POINT;
+  return (state.lastTick.price - state.avgPrice) * state.position * dollarsPerPoint();
+}
+
+function limitOrderTriggered(order) {
+  if (!state.lastTick) return false;
+  return order.side === "BUY"
+    ? state.lastTick.price <= order.price
+    : state.lastTick.price >= order.price;
+}
+
+async function checkLimitOrders() {
+  if (!state.lastTick || state.limitOrders.length === 0) return false;
+
+  let filled = 0;
+  for (const order of [...state.limitOrders]) {
+    if (!limitOrderTriggered(order)) continue;
+    await placeTrade(order.side, order.quantity, order.price, "Limit");
+    state.limitOrders = state.limitOrders.filter((pending) => pending.id !== order.id);
+    filled += 1;
+  }
+
+  if (filled > 0) {
+    renderPendingOrders();
+    drawChart();
+    els.tradeStatus.textContent = `${filled} limit order${filled === 1 ? "" : "s"} filled.`;
+    return true;
+  }
+  return false;
 }
 
 async function checkExitOrders() {
@@ -790,7 +853,7 @@ async function checkExitOrders() {
   return true;
 }
 
-async function placeTrade(side, quantityOverride = null) {
+async function placeTrade(side, quantityOverride = null, fillPriceOverride = null, orderType = "Market") {
   if (!state.lastTick) return;
   const snapshot = {
     position: state.position,
@@ -799,9 +862,12 @@ async function placeTrade(side, quantityOverride = null) {
   };
   const requestedQuantity = quantityOverride ?? Number(els.qtyInput.value);
   const quantity = Math.max(1, Math.floor(requestedQuantity || 1));
-  const execution = executeLocal(side, quantity, state.lastTick.price);
+  const fillPrice = fillPriceOverride ?? state.lastTick.price;
+  const execution = executeLocal(side, quantity, fillPrice);
   const payload = {
     ...execution,
+    instrument: state.instrument,
+    order_type: orderType,
     session_start: state.sessionStart,
     replay_timestamp: state.lastTick.timestamp,
     source: state.coverage.source,
@@ -833,9 +899,50 @@ async function placeTrade(side, quantityOverride = null) {
   state.executions = state.executions.slice(0, 40);
   renderExecutions();
   updatePositionPanel();
-  els.tradeStatus.textContent = `${side} ${quantity} filled at ${price(state.lastTick.price)} and saved.`;
   drawChart();
   setControls();
+  els.tradeStatus.textContent = `${orderType} ${side} ${quantity} filled at ${price(fillPrice)} and saved.`;
+}
+
+function limitPriceFromInput() {
+  const raw = Number(els.limitPriceInput.value);
+  if (!Number.isFinite(raw) || raw <= 0) return null;
+  return roundToTick(raw);
+}
+
+function placeLimitOrder(side) {
+  if (!state.lastTick) return;
+  const orderPrice = limitPriceFromInput();
+  if (orderPrice === null) {
+    els.tradeStatus.textContent = "Enter a valid limit price.";
+    return;
+  }
+
+  const quantity = Math.max(1, Math.floor(Number(els.qtyInput.value) || 1));
+  const order = {
+    id: state.nextLimitOrderId,
+    side,
+    quantity,
+    price: orderPrice,
+    instrument: state.instrument,
+    created_at: state.lastTick.timestamp,
+  };
+  state.nextLimitOrderId += 1;
+  state.limitOrders.push(order);
+  els.limitPriceInput.value = price(orderPrice);
+  renderPendingOrders();
+  drawChart();
+  els.tradeStatus.textContent = `${side} limit ${quantity} @ ${price(orderPrice)} placed.`;
+}
+
+function cancelLimitOrder(orderId) {
+  const before = state.limitOrders.length;
+  state.limitOrders = state.limitOrders.filter((order) => order.id !== orderId);
+  if (state.limitOrders.length !== before) {
+    renderPendingOrders();
+    drawChart();
+    els.tradeStatus.textContent = "Limit order cancelled.";
+  }
 }
 
 async function flattenPosition() {
@@ -853,11 +960,20 @@ function updatePositionPanel() {
   els.unrealizedValue.textContent = money(currentUnrealized());
 }
 
+function renderPendingOrders() {
+  els.pendingOrders.innerHTML = "";
+  for (const order of state.limitOrders) {
+    const li = document.createElement("li");
+    li.innerHTML = `<div><strong>${order.side} ${order.quantity} @ ${price(order.price)}</strong><span>${order.instrument} limit</span></div><button type="button" data-cancel-limit="${order.id}">X</button>`;
+    els.pendingOrders.appendChild(li);
+  }
+}
+
 function renderExecutions() {
   els.executions.innerHTML = "";
   for (const ex of state.executions) {
     const li = document.createElement("li");
-    li.innerHTML = `<strong>${ex.side} ${ex.quantity} @ ${price(ex.fill_price)}</strong><span>${ex.replay_timestamp} | Pos ${ex.position_after} | R ${money(ex.realized_pnl)}</span>`;
+    li.innerHTML = `<strong>${ex.order_type || "Market"} ${ex.side} ${ex.quantity} @ ${price(ex.fill_price)}</strong><span>${ex.replay_timestamp} | Pos ${ex.position_after} | R ${money(ex.realized_pnl)}</span>`;
     els.executions.appendChild(li);
   }
 }
@@ -885,6 +1001,14 @@ function toggleTickChart() {
   window.requestAnimationFrame(resizeChart);
 }
 
+function setInstrument(instrument) {
+  state.instrument = instrument;
+  updatePositionPanel();
+  drawChart();
+  setControls();
+  els.tradeStatus.textContent = `${instrument} mode: ${money(dollarsPerPoint())}/pt, ${money(dollarsPerTick())}/tick.`;
+}
+
 function showError(error) {
   els.tradeStatus.textContent = error.message;
   console.error(error);
@@ -901,15 +1025,17 @@ els.zoomInBtn.addEventListener("click", () => zoomChart("in"));
 els.resetBtn.addEventListener("click", () => resetReplay(false));
 els.buyBtn.addEventListener("click", () => placeTrade("BUY").catch(showError));
 els.sellBtn.addEventListener("click", () => placeTrade("SELL").catch(showError));
+els.buyLimitBtn.addEventListener("click", () => placeLimitOrder("BUY"));
+els.sellLimitBtn.addEventListener("click", () => placeLimitOrder("SELL"));
 els.flattenBtn.addEventListener("click", () => flattenPosition().catch(showError));
-els.chart.addEventListener("mousemove", handleChartHover);
-els.chart.addEventListener("mouseleave", clearChartHover);
+els.mnqToggle.addEventListener("change", () => setInstrument(els.mnqToggle.checked ? "MNQ" : "NQ"));
+els.pendingOrders.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-cancel-limit]");
+  if (!button) return;
+  cancelLimitOrder(Number(button.dataset.cancelLimit));
+});
 els.chart.addEventListener("contextmenu", handleChartContextMenu);
-els.chart.addEventListener("wheel", handleChartWheel, { passive: false });
-els.tickChart.addEventListener("mousemove", (event) => handleChartHover(event, "tick", els.tickChart));
-els.tickChart.addEventListener("mouseleave", () => clearChartHover("tick"));
-els.tickChart.addEventListener("contextmenu", (event) => handleChartContextMenu(event, "tick", els.tickChart));
-els.tickChart.addEventListener("wheel", handleChartWheel, { passive: false });
+els.tickChart.addEventListener("contextmenu", (event) => handleChartContextMenu(event, "tick"));
 window.addEventListener("resize", resizeChart);
 
 loadCoverage().catch(showError);

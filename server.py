@@ -15,16 +15,18 @@ from simulator_core import (
     build_tick_store,
     format_timestamp,
     parse_timestamp,
+    resolve_data_dir,
 )
 
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
-TRADES_PATH = BASE_DIR / "paper_trades.csv"
+TRADES_PATH = resolve_data_dir(BASE_DIR) / "paper_trades.csv"
 TRADE_HEADERS = [
     "saved_at",
     "session_start",
     "replay_timestamp",
     "instrument",
+    "order_type",
     "side",
     "quantity",
     "fill_price",
@@ -71,6 +73,7 @@ def trade_headers_for_append() -> list[str]:
 
 
 def append_trade(row: dict) -> None:
+    TRADES_PATH.parent.mkdir(parents=True, exist_ok=True)
     exists = TRADES_PATH.exists()
     headers = trade_headers_for_append()
     with TRADES_PATH.open("a", newline="", encoding="utf-8") as handle:
@@ -141,7 +144,8 @@ class SimulatorHandler(SimpleHTTPRequestHandler):
                 "saved_at": format_timestamp(datetime.now()),
                 "session_start": payload.get("session_start", ""),
                 "replay_timestamp": payload.get("replay_timestamp", ""),
-                "instrument": INSTRUMENT,
+                "instrument": payload.get("instrument") if payload.get("instrument") in {"NQ", "MNQ"} else INSTRUMENT,
+                "order_type": payload.get("order_type") if payload.get("order_type") in {"Market", "Limit"} else "Market",
                 "side": payload.get("side", ""),
                 "quantity": int(payload.get("quantity", 1)),
                 "fill_price": f"{float(payload.get('fill_price')):.2f}",
@@ -160,12 +164,13 @@ class SimulatorHandler(SimpleHTTPRequestHandler):
 def main() -> None:
     store = get_store()
     coverage = store.coverage()
-    server = ThreadingHTTPServer(("127.0.0.1", 8000), SimulatorHandler)
+    server = ThreadingHTTPServer(("127.0.0.1", 8080), SimulatorHandler)
     print(f"Loaded {coverage['count']:,} ticks from {coverage['source']}")
     if coverage.get("database"):
         print(f"Database: {coverage['database']}")
     print(f"Coverage: {coverage['start']} to {coverage['end']} ({coverage['timezone']})")
-    print("Open http://127.0.0.1:8000")
+    print(f'Paper trades: {TRADES_PATH}')
+    print('Open http://127.0.0.1:8080')
     server.serve_forever()
 
 

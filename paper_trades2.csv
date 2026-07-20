@@ -1,0 +1,151 @@
+saved_at,session_start,replay_timestamp,instrument,side,quantity,fill_price,position_before,position_after,avg_price_after,realized_delta,realized_pnl,unrealized_pnl,source
+12:47.5,9/06/2026 9:30,35:38.3,NQ,BUY,1,29316.5,0,1,29316.5,,0,,1 CSV file(s) via ticks.sqlite3
+13:03.2,9/06/2026 9:30,40:54.5,NQ,BUY,1,29344.25,1,2,29330.38,,0,,1 CSV file(s) via ticks.sqlite3
+13:12.4,9/06/2026 9:30,21:56.5,NQ,SELL,2,29415.5,2,0,0,,3405,,1 CSV file(s) via ticks.sqlite3
+13:23.2,9/06/2026 9:30,22:38.6,NQ,BUY,1,29466.5,0,1,29466.5,,0,,1 CSV file(s) via ticks.sqlite3
+13:46.8,9/06/2026 9:30,25:56.3,NQ,SELL,1,29442.75,1,0,0,,-475,,1 CSV file(s) via ticks.sqlite3
+13:56.5,9/06/2026 9:30,40:03.9,NQ,BUY,1,29507,0,1,29507,,0,,1 CSV file(s) via ticks.sqlite3
+14:08.1,9/06/2026 9:30,43:08.4,NQ,SELL,1,29491,1,0,0,,-320,,1 CSV file(s) via ticks.sqlite3
+14:13.9,9/06/2026 9:30,45:10.8,NQ,BUY,1,29516,0,1,29516,,0,,1 CSV file(s) via ticks.sqlite3
+14:39.2,9/06/2026 9:30,40:28.6,NQ,SELL,1,29580.25,1,0,0,,1285,,1 CSV file(s) via ticks.sqlite3
+15:13.3,10/06/2026 9:30,45:04.9,NQ,BUY,1,29016.75,0,1,29016.75,,0,,1 CSV file(s) via ticks.sqlite3
+15:31.3,10/06/2026 9:30,55:29.9,NQ,BUY,1,29060,1,2,29038.38,,0,,1 CSV file(s) via ticks.sqlite3
+15:33.5,10/06/2026 9:30,00:02.8,NQ,SELL,2,29079.25,2,0,0,,1635,,1 CSV file(s) via ticks.sqlite3
+17:19.5,11/06/2026 9:30,05:13.7,NQ,BUY,1,28624.5,0,1,28624.5,,0,,1 CSV file(s) via ticks.sqlite3
+17:37.2,11/06/2026 9:30,10:10.6,NQ,BUY,1,28646.5,1,2,28635.5,,0,,1 CSV file(s) via ticks.sqlite3
+17:43.3,11/06/2026 9:30,15:18.0,NQ,SELL,2,28714.5,2,0,0,,3160,,1 CSV file(s) via ticks.sqlite3
+19:10.9,12/06/2026 9:30,00:21.3,NQ,SELL,1,29570,0,-1,29570,,0,,1 CSV file(s) via ticks.sqlite3
+19:51.3,12/06/2026 9:30,16:24.8,NQ,BUY,1,29572.25,-1,0,0,,-45,,1 CSV file(s) via ticks.sqlite3
+20:08.7,12/06/2026 9:30,25:07.4,NQ,SELL,1,29509,0,-1,29509,,0,,1 CSV file(s) via ticks.sqlite3
+20:45.6,12/06/2026 9:30,49:19.0,NQ,BUY,1,29530,-1,0,0,,-420,,1 CSV file(s) via ticks.sqlite3
+20:58.1,12/06/2026 9:30,00:14.4,NQ,BUY,1,29557.75,0,1,29557.75,,0,,1 CSV file(s) via ticks.sqlite3
+21:19.4,12/06/2026 9:30,25:11.2,NQ,SELL,1,29538.5,1,0,0,,-385,,1 CSV file(s) via ticks.sqlite3
+21:41.9,12/06/2026 9:30,26:35.6,NQ,BUY,1,29505.75,0,1,29505.75,,0,,1 CSV file(s) via ticks.sqlite3
+21:56.4,12/06/2026 9:30,40:58.0,NQ,SELL,1,29545.75,1,0,0,,800,,1 CSV file(s) via ticks.sqlite3
+22:22.6,12/06/2026 9:30,21:04.5,NQ,BUY,1,29505.5,0,1,29505.5,,0,,1 CSV file(s) via ticks.sqlite3
+22:34.1,12/06/2026 9:30,30:23.0,NQ,BUY,1,29535.25,1,2,29520.38,,0,,1 CSV file(s) via ticks.sqlite3
+22:35.0,12/06/2026 9:30,30:33.0,NQ,SELL,2,29543.5,2,0,0,,925,,1 CSV file(s) via ticks.sqlite3
+23:25.8,12/06/2026 9:30,55:26.2,NQ,BUY,1,29343.5,0,1,29343.5,,0,,1 CSV file(s) via ticks.sqlite3
+23:28.0,12/06/2026 9:30,55:47.5,NQ,SELL,1,29338.75,1,0,0,,-95,,1 CSV file(s) via ticks.sqlite3
+23:28.6,12/06/2026 9:30,55:53.4,NQ,SELL,1,29335.75,0,-1,29335.75,,0,,1 CSV file(s) via ticks.sqlite3
+23:39.2,12/06/2026 9:30,00:01.6,NQ,BUY,1,29367,-1,0,0,,-625,,1 CSV file(s) via ticks.sqlite3
+23:43.6,12/06/2026 9:30,00:46.5,NQ,SELL,1,29354.75,0,-1,29354.75,,0,,1 CSV file(s) via ticks.sqlite3
+23:50.5,12/06/2026 9:30,04:12.7,NQ,BUY,1,29312.25,-1,0,0,,850,,1 CSV file(s) via ticks.sqlite3
+24:05.0,12/06/2026 9:30,15:52.7,NQ,SELL,1,29278,0,-1,29278,,0,,1 CSV file(s) via ticks.sqlite3
+24:16.4,12/06/2026 9:30,21:12.3,NQ,BUY,1,29304,-1,0,0,,-520,,1 CSV file(s) via ticks.sqlite3
+24:30.7,12/06/2026 9:30,45:30.3,NQ,BUY,1,29377,0,1,29377,,0,,1 CSV file(s) via ticks.sqlite3
+24:37.0,12/06/2026 9:30,56:52.0,NQ,SELL,1,29419,1,0,0,,840,,1 CSV file(s) via ticks.sqlite3
+25:44.8,18/06/2026 9:30,20:23.3,NQ,SELL,1,30407.25,0,-1,30407.25,,0,,1 CSV file(s) via ticks.sqlite3
+26:01.9,18/06/2026 9:30,13:46.9,NQ,BUY,1,30378,-1,0,0,,585,,1 CSV file(s) via ticks.sqlite3
+26:17.1,18/06/2026 9:30,20:23.4,NQ,SELL,1,30340.75,0,-1,30340.75,,0,,1 CSV file(s) via ticks.sqlite3
+26:32.8,18/06/2026 9:30,40:15.3,NQ,SELL,1,30301.25,-1,-2,30321,,0,,1 CSV file(s) via ticks.sqlite3
+26:41.6,18/06/2026 9:30,18:50.7,NQ,BUY,2,30365,-2,0,0,,-1760,,1 CSV file(s) via ticks.sqlite3
+27:22.7,18/06/2026 12:30,31:03.4,NQ,SELL,1,30389.5,0,-1,30389.5,,0,,1 CSV file(s) via ticks.sqlite3
+27:28.3,18/06/2026 12:30,34:32.3,NQ,BUY,1,30410.5,-1,0,0,,-420,,1 CSV file(s) via ticks.sqlite3
+27:36.7,18/06/2026 12:30,05:07.7,NQ,SELL,1,30404.25,0,-1,30404.25,,0,,1 CSV file(s) via ticks.sqlite3
+28:08.5,18/06/2026 12:30,15:44.3,NQ,SELL,1,30366.75,-1,-2,30385.5,,0,,1 CSV file(s) via ticks.sqlite3
+28:20.7,18/06/2026 12:30,33:38.0,NQ,BUY,2,30318.5,-2,0,0,,2680,,1 CSV file(s) via ticks.sqlite3
+29:23.1,22/06/2026 9:30,05:23.1,NQ,BUY,1,30504.25,0,1,30504.25,,0,,1 CSV file(s) via ticks.sqlite3
+29:38.2,22/06/2026 9:30,11:31.6,NQ,SELL,1,30483.25,1,0,0,,-420,,1 CSV file(s) via ticks.sqlite3
+29:44.2,22/06/2026 9:30,20:14.1,NQ,BUY,1,30521.5,0,1,30521.5,,0,,1 CSV file(s) via ticks.sqlite3
+29:50.5,22/06/2026 9:30,27:06.4,NQ,SELL,1,30548.5,1,0,0,,540,,1 CSV file(s) via ticks.sqlite3
+30:38.6,22/06/2026 9:30,05:08.6,NQ,BUY,1,30638,0,1,30638,,0,,1 CSV file(s) via ticks.sqlite3
+30:50.7,22/06/2026 9:30,47:38.2,NQ,SELL,1,30616,1,0,0,,-440,,1 CSV file(s) via ticks.sqlite3
+31:13.5,22/06/2026 9:30,30:14.4,NQ,SELL,1,30590,0,-1,30590,,0,,1 CSV file(s) via ticks.sqlite3
+31:26.0,22/06/2026 9:30,01:31.5,NQ,BUY,1,30559.25,-1,0,0,,615,,1 CSV file(s) via ticks.sqlite3
+32:58.3,23/06/2026 9:30,00:13.9,NQ,BUY,1,30593.25,0,1,30593.25,,0,,1 CSV file(s) via ticks.sqlite3
+33:08.1,23/06/2026 9:30,06:45.5,NQ,SELL,1,30572,1,0,0,,-425,,1 CSV file(s) via ticks.sqlite3
+33:14.8,23/06/2026 9:30,07:13.1,NQ,SELL,1,30582.5,0,-1,30582.5,,0,,1 CSV file(s) via ticks.sqlite3
+33:24.1,23/06/2026 9:30,12:24.4,NQ,BUY,1,30529.5,-1,0,0,,1060,,1 CSV file(s) via ticks.sqlite3
+33:42.2,23/06/2026 9:30,25:48.6,NQ,SELL,1,30466,0,-1,30466,,0,,1 CSV file(s) via ticks.sqlite3
+33:50.1,23/06/2026 9:30,26:24.2,NQ,BUY,1,30485.5,-1,0,0,,-390,,1 CSV file(s) via ticks.sqlite3
+33:50.6,23/06/2026 9:30,26:26.6,NQ,SELL,1,30488.25,0,-1,30488.25,,0,,1 CSV file(s) via ticks.sqlite3
+34:03.5,23/06/2026 9:30,31:24.8,NQ,BUY,1,30513.75,-1,0,0,,-510,,1 CSV file(s) via ticks.sqlite3
+34:09.8,23/06/2026 9:30,31:53.0,NQ,BUY,1,30519.5,0,1,30519.5,,0,,1 CSV file(s) via ticks.sqlite3
+34:21.0,23/06/2026 9:30,43:39.7,NQ,SELL,1,30571.75,1,0,0,,1045,,1 CSV file(s) via ticks.sqlite3
+34:52.2,24/06/2026 9:30,35:23.4,NQ,SELL,1,29642,0,-1,29642,,0,,1 CSV file(s) via ticks.sqlite3
+35:14.0,24/06/2026 9:30,40:37.0,NQ,SELL,1,29625.25,-1,-2,29633.62,,0,,1 CSV file(s) via ticks.sqlite3
+35:17.8,24/06/2026 9:30,45:02.5,NQ,BUY,2,29661.5,-2,0,0,,-1115,,1 CSV file(s) via ticks.sqlite3
+35:48.7,24/06/2026 9:30,00:48.6,NQ,BUY,1,29771.5,0,1,29771.5,,0,,1 CSV file(s) via ticks.sqlite3
+36:02.2,24/06/2026 9:30,04:28.1,NQ,SELL,1,29755,1,0,0,,-330,,1 CSV file(s) via ticks.sqlite3
+36:19.5,24/06/2026 9:30,10:46.6,NQ,BUY,1,29836.25,0,1,29836.25,,0,,1 CSV file(s) via ticks.sqlite3
+36:23.4,24/06/2026 9:30,13:30.4,NQ,SELL,1,29813.75,1,0,0,,-450,,1 CSV file(s) via ticks.sqlite3
+37:12.9,24/06/2026 9:30,15:03.8,NQ,BUY,1,29815.75,0,1,29815.75,,0,,1 CSV file(s) via ticks.sqlite3
+37:19.6,24/06/2026 9:30,16:44.3,NQ,SELL,1,29789,1,0,0,,-535,,1 CSV file(s) via ticks.sqlite3
+37:25.3,24/06/2026 9:30,20:13.1,NQ,SELL,1,29781.25,0,-1,29781.25,,0,,1 CSV file(s) via ticks.sqlite3
+37:30.8,24/06/2026 9:30,23:57.5,NQ,BUY,1,29802.5,-1,0,0,,-425,,1 CSV file(s) via ticks.sqlite3
+38:06.4,24/06/2026 9:30,35:26.2,NQ,SELL,1,29770.75,0,-1,29770.75,,0,,1 CSV file(s) via ticks.sqlite3
+38:12.3,24/06/2026 9:30,39:15.9,NQ,BUY,1,29731.75,-1,0,0,,780,,1 CSV file(s) via ticks.sqlite3
+39:28.5,24/06/2026 11:30,40:24.5,NQ,SELL,1,29730.5,0,-1,29730.5,,0,,1 CSV file(s) via ticks.sqlite3
+39:34.5,24/06/2026 11:30,46:12.3,NQ,BUY,1,29710,-1,0,0,,410,,1 CSV file(s) via ticks.sqlite3
+40:13.0,24/06/2026 11:30,10:42.9,NQ,BUY,1,29699.25,0,1,29699.25,,0,,1 CSV file(s) via ticks.sqlite3
+40:26.8,24/06/2026 11:30,19:46.3,NQ,SELL,1,29680,1,0,0,,-385,,1 CSV file(s) via ticks.sqlite3
+40:31.5,24/06/2026 11:30,20:15.5,NQ,BUY,1,29689.5,0,1,29689.5,,0,,1 CSV file(s) via ticks.sqlite3
+42:36.9,5/06/2026 16:30,25:32.3,NQ,BUY,1,30102.75,0,1,30102.75,,0,,1 CSV file(s) via ticks.sqlite3
+42:49.8,5/06/2026 16:30,32:21.9,NQ,SELL,1,30133.75,1,0,0,,620,,1 CSV file(s) via ticks.sqlite3
+43:51.1,12/06/2026 16:30,55:26.2,NQ,SELL,1,29343.5,0,-1,29343.5,,0,,1 CSV file(s) via ticks.sqlite3
+44:09.1,12/06/2026 16:30,00:00.3,NQ,BUY,1,29365.75,-1,0,0,,-445,,1 CSV file(s) via ticks.sqlite3
+44:22.1,12/06/2026 16:30,01:01.1,NQ,SELL,1,29343.5,0,-1,29343.5,,0,,1 CSV file(s) via ticks.sqlite3
+44:29.6,12/06/2026 16:30,04:12.7,NQ,BUY,1,29314,-1,0,0,,590,,1 CSV file(s) via ticks.sqlite3
+45:47.4,12/06/2026 16:30,41:29.7,NQ,BUY,1,29359.75,0,1,29359.75,,0,,1 CSV file(s) via ticks.sqlite3
+45:58.7,12/06/2026 16:30,56:52.0,NQ,SELL,1,29419,1,0,0,,1185,,1 CSV file(s) via ticks.sqlite3
+49:03.3,9/06/2026 16:30,45:34.2,NQ,BUY,1,29629,0,1,29629,,0,,1 CSV file(s) via ticks.sqlite3
+49:15.1,9/06/2026 16:30,52:23.2,NQ,SELL,1,29609,1,0,0,,-400,,1 CSV file(s) via ticks.sqlite3
+49:42.0,9/06/2026 16:30,10:33.9,NQ,BUY,1,29628.75,0,1,29628.75,,0,,1 CSV file(s) via ticks.sqlite3
+49:47.4,9/06/2026 16:30,12:34.4,NQ,SELL,1,29660.75,1,0,0,,640,,1 CSV file(s) via ticks.sqlite3
+51:45.3,9/06/2026 16:30,55:48.5,NQ,SELL,1,29642.25,0,-1,29642.25,,0,,1 CSV file(s) via ticks.sqlite3
+53:03.2,9/06/2026 16:30,02:05.3,NQ,BUY,1,29663.5,-1,0,0,,-425,,1 CSV file(s) via ticks.sqlite3
+43:07.6,2/07/2026 9:30,06:23.8,NQ,BUY,1,29985,0,1,29985,,0,,existing ticks.sqlite3
+43:17.8,2/07/2026 9:30,07:09.0,NQ,SELL,1,29977,1,0,0,,-160,,existing ticks.sqlite3
+43:19.4,2/07/2026 9:30,07:16.6,NQ,SELL,1,29973.75,0,-1,29973.75,,0,,existing ticks.sqlite3
+43:23.1,2/07/2026 9:30,07:34.7,NQ,BUY,1,29978.5,-1,0,0,,-95,,existing ticks.sqlite3
+43:23.9,2/07/2026 9:30,07:38.7,NQ,BUY,1,29981,0,1,29981,,0,,existing ticks.sqlite3
+43:45.6,2/07/2026 9:30,09:20.9,NQ,BUY,1,30002,1,2,29991.5,,0,,existing ticks.sqlite3
+44:32.6,2/07/2026 9:30,19:19.0,NQ,SELL,2,29984.5,2,0,0,,-280,,existing ticks.sqlite3
+44:50.0,2/07/2026 9:30,20:39.0,NQ,BUY,1,29990.25,0,1,29990.25,,0,,existing ticks.sqlite3
+45:11.0,2/07/2026 9:30,25:21.4,NQ,BUY,1,30045.5,1,2,30017.88,,0,,existing ticks.sqlite3
+45:15.0,2/07/2026 9:30,36:48.5,NQ,SELL,2,30078.25,2,0,0,,2415,,existing ticks.sqlite3
+47:08.4,30/06/2026 4:30,38:24.1,NQ,SELL,1,29949.25,0,-1,29949.25,,0,,existing ticks.sqlite3
+47:15.4,30/06/2026 4:30,40:04.6,NQ,SELL,1,29968.75,-1,-2,29959,,0,,existing ticks.sqlite3
+48:24.9,1/07/2026 8:00,10:46.4,NQ,SELL,1,30487,0,-1,30487,,0,,existing ticks.sqlite3
+48:43.1,1/07/2026 8:00,17:43.5,NQ,BUY,1,30466.75,-1,0,0,,405,,existing ticks.sqlite3
+50:27.6,1/07/2026 8:00,50:16.3,NQ,SELL,1,30458.5,0,-1,30458.5,,0,,existing ticks.sqlite3
+50:48.2,1/07/2026 8:00,05:25.2,NQ,SELL,1,30420,-1,-2,30439.25,,0,,existing ticks.sqlite3
+51:25.1,1/07/2026 11:35,50:08.7,NQ,SELL,1,30459.25,0,-1,30459.25,,0,,existing ticks.sqlite3
+51:41.4,1/07/2026 11:35,05:07.6,NQ,SELL,1,30429.75,-1,-2,30444.5,,0,,existing ticks.sqlite3
+51:52.8,1/07/2026 11:35,15:19.1,NQ,BUY,2,30379.25,-2,0,0,,2610,,existing ticks.sqlite3
+53:13.8,2/07/2026 11:35,15:10.5,NQ,BUY,1,30236.5,0,1,30236.5,,0,,existing ticks.sqlite3
+53:27.4,2/07/2026 11:35,20:26.7,NQ,SELL,1,30217,1,0,0,,-390,,existing ticks.sqlite3
+53:59.4,2/07/2026 11:35,30:20.0,NQ,SELL,1,30188,0,-1,30188,,0,,existing ticks.sqlite3
+54:08.2,2/07/2026 11:35,34:14.6,NQ,BUY,1,30209.5,-1,0,0,,-430,,existing ticks.sqlite3
+54:48.4,2/07/2026 12:50,00:29.8,NQ,SELL,1,30211,0,-1,30211,,0,,existing ticks.sqlite3
+55:03.7,2/07/2026 12:50,10:31.0,NQ,SELL,1,30167.5,-1,-2,30189.25,,0,,existing ticks.sqlite3
+55:20.9,2/07/2026 12:50,25:51.6,NQ,BUY,2,30140.25,-2,0,0,,1960,,existing ticks.sqlite3
+55:55.1,2/07/2026 12:50,26:54.7,NQ,SELL,1,30137.5,0,-1,30137.5,,0,,existing ticks.sqlite3
+57:55.1,1/06/2026 10:00,05:30.5,NQ,BUY,1,30515.75,0,1,30515.75,,0,,existing ticks.sqlite3
+58:00.3,1/06/2026 10:00,19:12.5,NQ,SELL,1,30496,1,0,0,,-395,,existing ticks.sqlite3
+58:05.5,1/06/2026 10:00,20:14.2,NQ,BUY,1,30505.5,0,1,30505.5,,0,,existing ticks.sqlite3
+58:14.7,1/06/2026 10:00,25:11.1,NQ,BUY,1,30529.25,1,2,30517.38,,0,,existing ticks.sqlite3
+58:17.6,1/06/2026 10:00,29:45.3,NQ,SELL,2,30543.5,2,0,0,,1045,,existing ticks.sqlite3
+00:43.6,1/06/2026 8:00,45:05.9,NQ,BUY,1,30455.5,0,1,30455.5,,0,,existing ticks.sqlite3
+01:12.9,1/06/2026 8:00,00:33.3,NQ,BUY,1,30475.25,1,2,30465.38,,0,,existing ticks.sqlite3
+01:13.9,1/06/2026 8:00,02:09.9,NQ,SELL,2,30496.25,2,0,0,,1235,,existing ticks.sqlite3
+02:32.1,1/06/2026 8:00,10:35.2,NQ,BUY,1,30524.5,0,1,30524.5,,0,,existing ticks.sqlite3
+02:42.4,1/06/2026 8:00,18:52.0,NQ,SELL,1,30500,1,0,0,,-490,,existing ticks.sqlite3
+03:12.0,1/06/2026 10:00,20:10.6,NQ,BUY,1,30504,0,1,30504,,0,,existing ticks.sqlite3
+03:21.4,1/06/2026 10:00,25:10.4,NQ,BUY,1,30528.5,1,2,30516.25,,0,,existing ticks.sqlite3
+03:23.2,1/06/2026 10:00,29:50.4,NQ,SELL,2,30546,2,0,0,,1190,,existing ticks.sqlite3
+33:18.5,10/07/2026 8:00,02:04.8,NQ,SELL,1,29897,0,-1,29897,,0,,2 CSV file(s) via ticks.sqlite3
+34:25.2,10/07/2026 8:00,07:13.5,NQ,BUY,1,29886.5,-1,0,0,,210,,2 CSV file(s) via ticks.sqlite3
+34:34.3,10/07/2026 8:00,07:55.4,NQ,SELL,1,29876,0,-1,29876,,0,,2 CSV file(s) via ticks.sqlite3
+34:45.7,10/07/2026 8:00,08:47.0,NQ,BUY,1,29888,-1,0,0,,-240,,2 CSV file(s) via ticks.sqlite3
+34:53.6,10/07/2026 8:00,09:22.3,NQ,SELL,1,29878,0,-1,29878,,0,,2 CSV file(s) via ticks.sqlite3
+35:27.5,10/07/2026 8:00,11:58.0,NQ,SELL,1,29863.5,-1,-2,29870.75,,0,,2 CSV file(s) via ticks.sqlite3
+36:08.8,10/07/2026 8:00,15:09.4,NQ,BUY,2,29901,-2,0,0,,-1210,,2 CSV file(s) via ticks.sqlite3
+36:10.7,10/07/2026 8:00,15:17.5,NQ,SELL,1,29892.25,0,-1,29892.25,,0,,2 CSV file(s) via ticks.sqlite3
+36:30.6,10/07/2026 8:00,16:42.3,NQ,SELL,1,29876.5,-1,-2,29884.38,,0,,2 CSV file(s) via ticks.sqlite3
+37:50.4,10/07/2026 8:00,23:18.2,NQ,SELL,1,29855.5,-2,-3,29874.75,,0,,2 CSV file(s) via ticks.sqlite3
+38:55.8,10/07/2026 8:00,28:14.7,NQ,BUY,3,29823.5,-3,0,0,,3075,,2 CSV file(s) via ticks.sqlite3
+39:37.2,10/07/2026 8:00,40:14.8,NQ,BUY,1,29815.25,0,1,29815.25,,0,,2 CSV file(s) via ticks.sqlite3
+39:59.1,10/07/2026 8:00,45:35.0,NQ,BUY,1,29828.25,1,2,29821.75,,0,,2 CSV file(s) via ticks.sqlite3
+40:12.0,10/07/2026 8:00,56:27.9,NQ,SELL,2,29850.75,2,0,0,,1160,,2 CSV file(s) via ticks.sqlite3

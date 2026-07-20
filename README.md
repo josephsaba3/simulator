@@ -1,4 +1,4 @@
-﻿# NQ Tick Replay Simulator
+# NQ Tick Replay Simulator
 
 Local browser simulator for replaying Rithmic NQ tick data as live-forming 5-minute candles.
 
@@ -34,7 +34,7 @@ By default, the app uses `%USERPROFILE%\nq-simulator` for tick data. It scans `%
 
 ## Paper trades
 
-Market Buy/Sell fills use the current replay tick price. Executions are appended to `paper_trades.csv`; existing rows are never rewritten or truncated by the app. `realized_pnl` is the realised PnL for that saved fill only: scale-ins/adds write `0.00`, while closes/reductions write the PnL for the contracts closed by that fill.
+Market Buy/Sell fills use the current replay tick price. Limit orders fill when replay ticks trade through the limit price. Executions are appended to `%USERPROFILE%\nq-simulator\paper_trades.csv` by default so Google Drive does not block writes; existing rows are never rewritten or truncated by the app. `realized_pnl` is the realised PnL for that saved fill only: scale-ins/adds write `0.00`, while closes/reductions write the PnL for the contracts closed by that fill.
 
 ## Tests
 

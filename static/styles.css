@@ -68,6 +68,8 @@ button.active {
   gap: 24px;
   padding: 18px 22px 12px;
   border-bottom: 1px solid var(--line);
+  min-height: 80px;
+  overflow: hidden;
 }
 
 h1,
@@ -89,10 +91,21 @@ h2 {
   letter-spacing: 0;
 }
 
+.topbar > div:first-child {
+  min-width: 0;
+  overflow: hidden;
+}
+
 .topbar p,
 .muted {
   color: var(--muted);
   font-size: 13px;
+}
+
+#coverageText {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .status-grid {
@@ -100,6 +113,7 @@ h2 {
   grid-template-columns: repeat(3, minmax(130px, 1fr));
   gap: 10px;
   min-width: 500px;
+  overflow:hidden;
 }
 
 .status-grid div,
@@ -108,6 +122,8 @@ h2 {
   border: 1px solid var(--line);
   border-radius: 6px;
   background: var(--panel);
+  overflow: hidden;
+  height: 56px;
 }
 
 .status-grid span,
@@ -122,6 +138,9 @@ h2 {
   display: block;
   margin: 4px 0 0;
   font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .control-strip {
@@ -149,6 +168,36 @@ select {
   padding: 0 10px;
 }
 
+input[type="checkbox"] {
+  min-height: 0;
+}
+
+.contract-toggle {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  margin-bottom: 12px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #0d1013;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.contract-toggle input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
+.contract-toggle small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .chart-wrap {
   position: relative;
   min-height: 0;
@@ -161,7 +210,6 @@ select {
   gap: 12px;
   height: 100%;
 }
-
 .chart-grid.split {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -193,8 +241,7 @@ select {
   pointer-events: none;
 }
 
-#chart,
-#tickChart {
+.tv-chart {
   display: block;
   width: 100%;
   height: 100%;
@@ -239,6 +286,49 @@ select {
   grid-column: 1 / -1;
   border-color: rgba(216, 164, 65, 0.75);
   background: rgba(216, 164, 65, 0.18);
+}
+
+.limit-order-controls {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.limit-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.pending-orders {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.pending-orders li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #12171c;
+  font-size: 13px;
+}
+
+.pending-orders span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.pending-orders button {
+  min-width: 32px;
+  min-height: 30px;
+  padding: 0;
 }
 
 .metrics dl {
@@ -295,8 +385,7 @@ select {
     grid-template-columns: 1fr;
     min-width: 0;
   }
-
-  .chart-grid.split {
+.chart-grid.split {
     grid-template-columns: 1fr;
   }
 }
